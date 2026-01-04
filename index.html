@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Gravité Fresq - Corrupted Hybrid</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: black;
+    }
+    canvas {
+        display: block;
+    }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+    var c = document.getElementById("canvas");
+    var ctx = c.getContext("2d");
+
+    c.height = window.innerHeight;
+    c.width = window.innerWidth;
+
+    var matrix = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+    matrix = matrix.split("");
+
+    var font_size = 14;
+    var columns = c.width/font_size;
+   
+    var drops = [];
+    var columnTypes = []; // Stores the "personality" of each column
+
+    var neon_cyan = "#009BFF";
+    var neon_magenta = "#FFFFFF";
+
+    function init() {
+        drops = [];
+        columnTypes = [];
+        for(var x = 0; x < columns; x++) {
+            drops[x] = 1;
+           
+            // Randomly assign a type to each column
+            // 0 = Solid Cyan
+            // 1 = Solid Magenta
+            // 2 = Unstable (Flickering)
+            var type = Math.random();
+            if(type < 0.40) {
+                columnTypes[x] = 0; // 40% chance Cyan
+            } else if (type < 0.80) {
+                columnTypes[x] = 1; // 40% chance Magenta
+            } else {
+                columnTypes[x] = 2; // 20% chance Unstable
+            }
+        }
+    }
+
+    init();
+
+    function draw()
+    {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, c.width, c.height);
+
+        ctx.font = font_size + "px arial";
+
+        for(var i = 0; i < drops.length; i++)
+        {
+            var text = matrix[Math.floor(Math.random()*matrix.length)];
+
+            // Determine color based on column type
+            if (columnTypes[i] === 0) {
+                ctx.fillStyle = neon_cyan;
+            } else if (columnTypes[i] === 1) {
+                ctx.fillStyle = neon_magenta;
+            } else {
+                // Unstable: Flip a coin every frame
+                ctx.fillStyle = (Math.random() > 0.5) ? neon_cyan : neon_magenta;
+            }
+           
+            ctx.fillText(text, i*font_size, drops[i]*font_size);
+
+            if(drops[i]*font_size > c.height && Math.random() > 0.975)
+                drops[i] = 0;
+
+            drops[i]++;
+        }
+    }
+
+    setInterval(draw, 35);
+
+    window.onresize = function() {
+        c.height = window.innerHeight;
+        c.width = window.innerWidth;
+        columns = c.width/font_size;
+        init();
+    };
+</script>
+</body>
+</html>
